@@ -6,7 +6,7 @@ import InstagramPost from './components/InstagramPost';
 
 export default function Home() {
   const [formData, setFormData] = useState({
-    layoutType: 'side-by-side',
+    layoutOption: 'title-horizontal',
     title: '',
     contentType: 'text',
     textContent: '',
@@ -28,16 +28,9 @@ export default function Home() {
   }, [formData]);
 
   return (
-    <div style={styles.container}>
+    <div className="grid grid-cols-1 gap-10 md:grid-cols-2 max-w-[1280px] px-8 py-10 ">
       <FormSection formData={formData} setFormData={setFormData} />
       <InstagramPost formData={formData} />
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    height: '100vh',
-  },
-};

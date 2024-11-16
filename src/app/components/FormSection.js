@@ -1,10 +1,10 @@
-
-// components/FormSection.js
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export default function FormSection({ formData, setFormData }) {
-  const { layoutType, title, contentType, textContent, listContent, image } = formData;
+  const { layoutOption, title, contentType, textContents, listContent, image } = formData;
   const [newListItem, setNewListItem] = useState('');
+  const [textBoxes, setTextBoxes] = useState(textContents || ['', '', '']);
 
   // Handle image upload
   const handleImageChange = (e) => {
@@ -12,6 +12,14 @@ export default function FormSection({ formData, setFormData }) {
     setFormData({
       ...formData,
       image: URL.createObjectURL(file),
+    });
+  };
+
+  // Handle image delete
+  const handleImageDelete = () => {
+    setFormData({
+      ...formData,
+      image: null,
     });
   };
 
@@ -35,125 +43,122 @@ export default function FormSection({ formData, setFormData }) {
     });
   };
 
-  // Handle layout type change
-  const handleLayoutChange = (value) => {
-    setFormData({ ...formData, layoutType: value });
+  // Handle layout option change
+  const handleLayoutOptionChange = (value) => {
+    setFormData({ ...formData, layoutOption: value });
   };
 
-  // Handle content type change
-  const handleContentTypeChange = (value) => {
-    setFormData({ ...formData, contentType: value });
+  // Handle text content changes
+  const handleTextChange = (index, value) => {
+    const updatedTextBoxes = [...textBoxes];
+    updatedTextBoxes[index] = value;
+    setTextBoxes(updatedTextBoxes);
+    setFormData({ ...formData, textContents: updatedTextBoxes });
   };
+
+  const form_label = 'font-bold text-xl my-2';
+  const form_text_input = 'border-2 border-solid border-primary px-4 py-2 h-12 rounded-md w-full';
 
   return (
-    <div style={styles.formContainer}>
+    <div>
       <h2>Form</h2>
-      {/* Layout Type */}
-      <div>
-        <p>Layout Type:</p>
+      <div className="flex flex-col">
+        <p className={`${form_label}`}>Layout Option:</p>
         <label>
           <input
             type="radio"
-            value="side-by-side"
-            checked={layoutType === 'side-by-side'}
-            onChange={() => handleLayoutChange('side-by-side')}
+            value="title-horizontal"
+            checked={layoutOption === 'title-horizontal'}
+            onChange={() => handleLayoutOptionChange('title-horizontal')}
           />
-          Side-by-Side
+          Title - Horizontal
         </label>
         <label>
           <input
             type="radio"
-            value="flat"
-            checked={layoutType === 'flat'}
-            onChange={() => handleLayoutChange('flat')}
+            value="title-vertical"
+            checked={layoutOption === 'title-vertical'}
+            onChange={() => handleLayoutOptionChange('title-vertical')}
           />
-          Flat
+          Title - Vertical
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="post-horizontal"
+            checked={layoutOption === 'post-horizontal'}
+            onChange={() => handleLayoutOptionChange('post-horizontal')}
+          />
+          Post - Horizontal
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="post-vertical"
+            checked={layoutOption === 'post-vertical'}
+            onChange={() => handleLayoutOptionChange('post-vertical')}
+          />
+          Post - Vertical
         </label>
       </div>
 
       {/* Title */}
       <div>
-        <p>Title:</p>
+        <p className={`${form_label}`}>Title:</p>
         <input
           type="text"
           value={title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          className={`${form_text_input}`}
         />
       </div>
 
-      {/* Content Type */}
+      {/* Text Content */}
       <div>
-        <p>Content Type:</p>
-        <label>
-          <input
-            type="radio"
-            value="text"
-            checked={contentType === 'text'}
-            onChange={() => handleContentTypeChange('text')}
+        <p className={`${form_label}`}>Text Contents:</p>
+        {textBoxes.map((text, index) => (
+          <textarea
+            key={index}
+            value={text}
+            onChange={(e) => handleTextChange(index, e.target.value)}
+            className={`${form_text_input} !h-20 mb-4`}
+            placeholder={`Text Content ${index + 1}`}
           />
-          Text
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="list"
-            checked={contentType === 'list'}
-            onChange={() => handleContentTypeChange('list')}
-          />
-          List
-        </label>
+        ))}
       </div>
 
-      {/* Text or List Input */}
-      {contentType === 'text' ? (
+      {/* List Content */}
+      <div>
+        <p className={`${form_label}`}>List Content:</p>
         <div>
-          <p>Text Content:</p>
-          <textarea
-            value={textContent}
-            onChange={(e) => setFormData({ ...formData, textContent: e.target.value })}
+          <input
+            type="text"
+            value={newListItem}
+            onChange={(e) => setNewListItem(e.target.value)}
+            className={`${form_text_input}`}
           />
+          <button className="button my-2" onClick={addListItem}>Add</button>
         </div>
-      ) : (
-        <div>
-          <p>List Content:</p>
-          <div>
-            <input
-              type="text"
-              value={newListItem}
-              onChange={(e) => setNewListItem(e.target.value)}
-            />
-            <button onClick={addListItem}>Add</button>
-          </div>
-          <ul>
-            {listContent.map((item, index) => (
-              <li key={index}>
-                {item}{' '}
-                <button onClick={() => removeListItem(index)}>Delete</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        <ul>
+          {listContent.map((item, index) => (
+            <li key={index}>
+              {item} <button className="button button--red" onClick={() => removeListItem(index)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* Image Upload */}
       <div>
-        <p>Image:</p>
+        <p className={`${form_label}`}>Image:</p>
         <input type="file" accept="image/*" onChange={handleImageChange} />
-        {image && <img src={image} alt="Selected" style={styles.imagePreview} />}
+        {image && (
+          <div className="py-2">
+            <Image src={image} alt="Post Image" width={384} height={384} className="h-auto w-[30%]" />
+            <button onClick={handleImageDelete} className="button my-2">Delete Image</button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-const styles = {
-  formContainer: {
-    flex: 1,
-    padding: '20px',
-    overflowY: 'auto',
-  },
-  imagePreview: {
-    marginTop: '10px',
-    maxWidth: '100%',
-    height: 'auto',
-  },
-};
