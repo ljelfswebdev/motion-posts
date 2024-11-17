@@ -5,30 +5,35 @@ import Image from 'next/image';
 export default function InstagramPost({ formData }) {
   const { layoutOption, title, textContents = [], listContent = [], image } = formData;
 
-  // Function to save the post as a PNG image
 // Function to save the post as a PNG image
 const savePost = () => {
   const node = document.getElementById('instagram-post');
 
-  toPng(node)
+  toPng(node, { cacheBust: true, useCORS: true })
     .then((dataUrl) => {
-      // Create an anchor element
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'instagram-post.png';
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
       if (isMobile) {
-        window.open(dataUrl, '_blank');
+        // For mobile devices, open the image in a new tab
+        const newTab = window.open();
+        if (newTab) {
+          newTab.document.body.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: auto;" />`;
+        } else {
+          alert('Please allow pop-ups to save the image.');
+        }
       } else {
+        // For desktop, trigger the download
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'instagram-post.png';
         link.click();
       }
     })
     .catch((err) => {
-      console.error('Failed to save image', err);
+      console.error('Failed to save image:', err);
+      alert('An error occurred while saving the image.');
     });
 };
-
   const renderTextContents = () => (
     <div className="flex flex-col gap-4">
       {textContents.map((text, index) => (
