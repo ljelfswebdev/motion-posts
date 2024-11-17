@@ -1,39 +1,31 @@
+"use client";
+
 import React from 'react';
-import { toPng } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import Image from 'next/image';
 
 export default function InstagramPost({ formData }) {
   const { layoutOption, title, textContents = [], listContent = [], image } = formData;
 
-// Function to save the post as a PNG image
-const savePost = () => {
-  const node = document.getElementById('instagram-post');
-
-  toPng(node, { cacheBust: true, useCORS: true })
-    .then((dataUrl) => {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-      if (isMobile) {
-        // For mobile devices, open the image in a new tab
-        const newTab = window.open();
-        if (newTab) {
-          newTab.document.body.innerHTML = `<img src="${dataUrl}" style="width: 100%; height: auto;" />`;
-        } else {
-          alert('Please allow pop-ups to save the image.');
-        }
-      } else {
-        // For desktop, trigger the download
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = 'instagram-post.png';
-        link.click();
-      }
-    })
-    .catch((err) => {
-      console.error('Failed to save image:', err);
+  const savePost = async () => {
+    try {
+      const element = document.getElementById('instagram-post');
+      const canvas = await html2canvas(element);
+      const data = canvas.toDataURL('image/jpg');
+  
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = 'instagram-post.jpg';
+  
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to save the image:', error);
       alert('An error occurred while saving the image.');
-    });
-};
+    }
+  };
+
   const renderTextContents = () => (
     <div className="flex flex-col gap-4">
       {textContents.map((text, index) => (
@@ -44,34 +36,39 @@ const savePost = () => {
     </div>
   );
 
-  // Helper function to render list content
   const renderListContent = () => (
     <ul className="flex flex-col gap-4 mb-4">
       {listContent.map((item, index) => (
-        <li 
-        className="relative flex items-start gap-2 text-lg text-white before:mt-2
-        before:content-[''] before:h-4 before:w-8 before:min-w-8 before:bg-secondary before:rounded-xl
-        "
-        key={index}>{item}</li>
+        <li
+          key={index}
+          className="relative flex items-start gap-2 text-lg text-white before:mt-2
+          before:content-[''] before:h-4 before:w-8 before:min-w-8 before:bg-secondary before:rounded-xl"
+        >
+          {item}
+        </li>
       ))}
     </ul>
   );
 
-  // Separate Instagram Post Component
   const InstagramPostContent = () => {
     switch (layoutOption) {
       case 'title-horizontal':
         return (
           <div className="h-[1080px] w-[1080px] bg-primary flex flex-row flex-wrap p-12">
             <div className="max-h-[calc(100%_-_100px)] flex flex-col w-[calc(40%_-_40px)] items-center justify-center gap-10">
-              
               {image && <Image src={image} alt="Post Image" width={600} height={600} className="w-auto max-w-full h-auto max-h-[calc(100%_-_300px)]" />}
-              <Image src="/logo-white.png" alt="Logo Image" width={300} height={300} className="w-full h-auto" />
+              
+              <div className="h-[250px] w-[300px]">
+                <img
+                  src="/logo-white.png"
+                  alt="Logo Image"
+                  className="w-full h-auto object-contain"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                  loading="eager"
+                />
+              </div>
             </div>
-    
-            <div className="flex flex-col w-[calc(60%_-_40px)] justify-center items-center ml-20
-            [&_p]:text-white [&_p]:text-center [&_p]:text-lg
-            ">
+            <div className="flex flex-col w-[calc(60%_-_40px)] justify-center items-center ml-20 [&_p]:text-white [&_p]:text-center [&_p]:text-lg">
               <h2 className="text-[60px] leading-[66px] text-white text-center font-extrabold mb-4">{title}</h2>
               {renderTextContents()}
               {renderListContent()}
@@ -79,7 +76,7 @@ const savePost = () => {
             <div className="w-full flex justify-evenly items-center gap-10 mt-auto">
               <p className="text-xl text-secondary font-bold">@motion_digital_room</p>
             </div>
-        </div>
+          </div>
         );
 
       case 'title-vertical':
@@ -125,11 +122,9 @@ const savePost = () => {
 
   return (
     <div className="h-fit flex flex-col items-start gap-20">
-      {/* Instagram Post Container */}
       <div id="instagram-post">
         <InstagramPostContent />
       </div>
-      {/* Save Button */}
       <button onClick={savePost} className="button">
         Save Post
       </button>
