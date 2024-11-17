@@ -72,35 +72,33 @@ const title_class = 'text-[60px] leading-[66px] text-white text-center font-extr
 
       case 'title-vertical':
         return (
-          <div className="h-[1080px] w-[1080px] bg-primary flex flex-col items-center justify-start p-12">
+          <div className="h-[1080px] w-[1080px] bg-primary flex flex-col p-12">
             {/* Title Section */}
             <div className={`${title_class} mb-10`}>{title}</div>
         
             {/* Dynamic Content Blocks */}
-            {renderContentBlocks()}
+            <div className="flex items-center flex-col gap-4 mb-4">{renderContentBlocks()}</div>
         
             {/* Image Section with Dynamic Height */}
             {image && (
-              <div className="flex-grow flex items-center justify-center w-full my-8">
+              <div className="flex-grow flex items-center justify-center w-full overflow-hidden mb-4">
                 <Image
                   src={image}
                   alt="Post Image"
                   width={800}
                   height={400}
-                  className="w-auto h-full max-h-[calc(100vh-300px)] object-contain"
+                  className="w-auto max-h-full object-contain"
                 />
               </div>
             )}
         
-            {/* Footer Section */}
-            <div className="w-full flex justify-evenly items-center gap-10 mt-auto">
-              <div className="h-[250px] w-[300px]">
+            {/* Footer Section (Fixed Height) */}
+            <div className="w-full flex justify-evenly items-center gap-10 h-[200px] mt-auto">
+              <div className="h-[200px] w-[250px]">
                 <img
                   src="/logo-white.png"
                   alt="Logo Image"
                   className="w-full h-auto object-contain"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
-                  loading="eager"
                 />
               </div>
               <p className="text-xl text-secondary font-bold">@motion_digital_room</p>
