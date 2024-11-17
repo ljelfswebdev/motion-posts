@@ -7,13 +7,20 @@ export default function FormSection({ formData, setFormData }) {
   const [textBoxes, setTextBoxes] = useState(textContents || ['', '', '']);
 
   // Handle image upload
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setFormData({
-      ...formData,
-      image: URL.createObjectURL(file),
-    });
-  };
+// Handle image upload and convert to Base64
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({
+        ...formData,
+        image: reader.result, // Store the Base64 string in formData
+      });
+    };
+    reader.readAsDataURL(file); // Convert the image file to a Base64 string
+  }
+};
 
   // Handle image delete
   const handleImageDelete = () => {

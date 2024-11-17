@@ -6,19 +6,28 @@ export default function InstagramPost({ formData }) {
   const { layoutOption, title, textContents = [], listContent = [], image } = formData;
 
   // Function to save the post as a PNG image
-  const savePost = () => {
-    const node = document.getElementById('instagram-post');
-    toPng(node)
-      .then((dataUrl) => {
-        const link = document.createElement('a');
-        link.download = 'instagram-post.png';
-        link.href = dataUrl;
+// Function to save the post as a PNG image
+const savePost = () => {
+  const node = document.getElementById('instagram-post');
+
+  toPng(node)
+    .then((dataUrl) => {
+      // Create an anchor element
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'instagram-post.png';
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        window.open(dataUrl, '_blank');
+      } else {
         link.click();
-      })
-      .catch((err) => {
-        console.error('Failed to save image', err);
-      });
-  };
+      }
+    })
+    .catch((err) => {
+      console.error('Failed to save image', err);
+    });
+};
 
   const renderTextContents = () => (
     <div className="flex flex-col gap-4">
@@ -62,7 +71,7 @@ export default function InstagramPost({ formData }) {
               {renderTextContents()}
               {renderListContent()}
             </div>
-            <div className="w-full flex justify-evenly items-center gap-10 mt-10">
+            <div className="w-full flex justify-evenly items-center gap-10 mt-auto">
               <p className="text-xl text-secondary font-bold">@motion_digital_room</p>
             </div>
         </div>
